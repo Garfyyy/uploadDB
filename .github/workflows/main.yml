@@ -1,0 +1,42 @@
+name: Upload Database
+
+on:
+  schedule:
+    - cron: '0 0 * * 0'
+  workflow_dispatch:
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install --no-cache-dir -r requirements.txt
+
+    - name: Download and extract data
+      env:
+        ASNDATA: ${{ secrets.ASNDATA }}
+      run: |
+        wget -O asndata.zip "$ASNDATA"
+        unzip asndata.zip -d temp_data
+        mkdir -p asndata
+        mv temp_data/*/* asndata/
+
+    - name: Upload database
+      env:
+        DB_URL: ${{ secrets.DB_URL }}
+      run: python main.py
+
+    - name: Clean up
+      run: |
+        rm -rf asndata.zip temp_data asndata
