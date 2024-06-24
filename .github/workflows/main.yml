@@ -26,11 +26,14 @@ jobs:
     - name: Download and extract data
       env:
         ASNDATA: ${{ secrets.ASNDATA }}
+        COUNTRYDATA: ${{ secrets.COUNTRYDATA }}
       run: |
         wget -O asndata.zip "$ASNDATA"
         unzip asndata.zip -d temp_data
-        mkdir -p asndata
-        mv temp_data/*/* asndata/
+        wget -O countrydata.zip "$COUNTRYDATA"
+        unzip countrydata.zip -d temp_data
+        mkdir -p data
+        mv temp_data/*/* data/
 
     - name: Upload database
       env:
@@ -39,4 +42,4 @@ jobs:
 
     - name: Clean up
       run: |
-        rm -rf asndata.zip temp_data asndata
+        rm -rf asndata.zip countrydata.zip temp_data data
