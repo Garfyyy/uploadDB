@@ -33,7 +33,7 @@ jobs:
         wget -O countrydata.zip "$COUNTRYDATA"
         unzip countrydata.zip -d temp_data
         mkdir -p data
-        mv temp_data/*/* data/
+        mv temp_data/*/*.csv data/
 
     - name: Upload database
       env:
