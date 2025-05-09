@@ -5,7 +5,7 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Connection
 
 """
-CREATE OR REPLACE FUNCTION public.querybatch(ips inet[])
+CREATE OR REPLACE FUNCTION public.querybatch(ips IN inet[])
 RETURNS TABLE (
     ip inet,
     country_code text,
@@ -13,8 +13,7 @@ RETURNS TABLE (
     asn integer,
     aso text
 )
-LANGUAGE sql
-AS $function$
+AS $$
     SELECT
         ip,
         country_code,
@@ -25,9 +24,9 @@ AS $function$
         UNNEST(ARRAY(SELECT DISTINCT UNNEST(ips))) AS ip
         LEFT JOIN ip2asn ON ip2asn.network >>= ip
         LEFT JOIN ip2country ON ip2country.network >>= ip;
-$function$;
+$$ LANGUAGE sql;
 
-CREATE OR REPLACE FUNCTION public.query(ip inet)
+CREATE OR REPLACE FUNCTION public.query(ip IN inet)
 RETURNS TABLE (
     ip inet,
     country_code text,
@@ -35,8 +34,7 @@ RETURNS TABLE (
     asn integer,
     aso text
 )
-LANGUAGE sql
-AS $function$
+AS $$
     SELECT
         ip,
         country_code,
@@ -47,7 +45,7 @@ AS $function$
         (SELECT ip) AS ip
         LEFT JOIN ip2asn ON ip2asn.network >>= ip
         LEFT JOIN ip2country ON ip2country.network >>= ip;
-$function$;
+$$ LANGUAGE sql;
 
 """
 
