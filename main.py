@@ -4,6 +4,53 @@ import pandas as pd
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Connection
 
+"""
+CREATE OR REPLACE FUNCTION public.querybatch(ips inet[])
+RETURNS TABLE (
+    ip inet,
+    country_code text,
+    country_name text,
+    asn integer,
+    aso text
+)
+LANGUAGE sql
+AS $function$
+    SELECT
+        ip,
+        country_code,
+        country_name,
+        asn,
+        aso
+    FROM
+        UNNEST(ARRAY(SELECT DISTINCT UNNEST(ips))) AS ip
+        LEFT JOIN ip2asn ON ip2asn.network >>= ip
+        LEFT JOIN ip2country ON ip2country.network >>= ip;
+$function$;
+
+CREATE OR REPLACE FUNCTION public.query(ip inet)
+RETURNS TABLE (
+    ip inet,
+    country_code text,
+    country_name text,
+    asn integer,
+    aso text
+)
+LANGUAGE sql
+AS $function$
+    SELECT
+        ip,
+        country_code,
+        country_name,
+        asn,
+        aso
+    FROM
+        (SELECT ip) AS ip
+        LEFT JOIN ip2asn ON ip2asn.network >>= ip
+        LEFT JOIN ip2country ON ip2country.network >>= ip;
+$function$;
+
+"""
+
 def uploaddf(df: pd.DataFrame, con: Connection, table_name: str, columns: str):
     con.execute(text(f"DROP TABLE IF EXISTS {table_name};"))
     con.execute(text(f"CREATE TABLE IF NOT EXISTS {table_name} ({columns});"))
